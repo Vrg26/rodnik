@@ -4,3 +4,5 @@ app:
 
 port: '8080'
 log_level: 'debug'
+
+secret_key: 'testtesttest'

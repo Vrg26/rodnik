@@ -9,6 +9,7 @@ type Config struct {
 	Port        string `yaml:"port" env:"HTTP_PORT" envDefault:"8080"`
 	LogLevel    string `yaml:"log_level" env:"LOG_LEVEL" envDefault:"info"`
 	DataBaseDSN string `yaml:"data_base_dsn" env:"DATABASE_DSN"`
+	SecretKey   string `yaml:"secret_key" env:"SECRET_KEY"`
 }
 
 func NewConfig() (*Config, error) {

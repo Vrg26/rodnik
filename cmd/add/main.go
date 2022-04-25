@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"rodnik/config"
+	"rodnik/internal/app"
+)
 
 func main() {
-	fmt.Print("Hello rodnik")
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Config error: %s", err)
+	}
+
+	app.Run(cfg)
 }
