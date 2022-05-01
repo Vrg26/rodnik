@@ -1,8 +1,10 @@
 package v1
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"rodnik/internal/apperror"
 	"rodnik/internal/entity"
 	"rodnik/internal/service"
 	"rodnik/pkg/logger"
@@ -39,12 +41,9 @@ func newAuthRoutes(handler *gin.RouterGroup, us service.Users, ts service.Token,
 func (r *authRoute) register(c *gin.Context) {
 	ctx := c.Request.Context()
 	var regReq registerReq
+
 	if err := c.BindJSON(&regReq); err != nil {
-		//todo сделать сообщение об ошибках для людей.
-		r.l.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "invalid request body",
-		})
+		returnErrorInResponse(c, err)
 		return
 	}
 
@@ -53,21 +52,16 @@ func (r *authRoute) register(c *gin.Context) {
 		Phone:    regReq.Phone,
 		Password: regReq.Password,
 	}
-	//todo обработать ошибку, если пользователь с таким номером существует
 	if err := r.us.Create(ctx, u); err != nil {
 		r.l.Error(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "server error",
-		})
+		returnErrorInResponse(c, err)
 		return
 	}
 
 	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id)
 	if err != nil {
 		r.l.Error(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "server error",
-		})
+		returnErrorInResponse(c, err)
 		return
 	}
 	c.JSON(http.StatusCreated, tokenPair)
@@ -79,31 +73,23 @@ func (r *authRoute) login(c *gin.Context) {
 	var lReq loginReq
 
 	if err := c.BindJSON(&lReq); err != nil {
-		r.l.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "invalid request body",
-		})
+		returnErrorInResponse(c, err)
 		return
 	}
 	u := &entity.User{
 		Phone:    lReq.Phone,
 		Password: lReq.Password,
 	}
-	//todo добавить нормульную обработку ошибок
 	if err := r.us.Login(ctx, u); err != nil {
 		r.l.Error(err)
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-			"error": "Invalid phone and password combination",
-		})
+		returnErrorInResponse(c, err)
 		return
 	}
 
 	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id)
 	if err != nil {
 		r.l.Error(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "server error",
-		})
+		returnErrorInResponse(c, apperror.Internal.New(ErrorMessageInternalServerError))
 		return
 	}
 	c.JSON(http.StatusCreated, tokenPair)
@@ -114,9 +100,7 @@ func (r *authRoute) logout(c *gin.Context) {
 	ctx := c.Request.Context()
 	if err := r.ts.DeleteUserTokens(ctx, userId); err != nil {
 		r.l.Error(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "server error",
-		})
+		returnErrorInResponse(c, err)
 		return
 	}
 	c.Status(http.StatusOK)
@@ -127,18 +111,19 @@ func (r authRoute) refresh(c *gin.Context) {
 
 	var tokenPair *service.TokenPair
 	if err := c.BindJSON(&tokenPair); err != nil {
-		r.l.Error(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "invalid request body",
-		})
+		r.l.Error(err.Error())
+		returnErrorInResponse(c, err)
 		return
 	}
 	newTokenPair, err := r.ts.RefreshToken(ctx, tokenPair.RefreshToken.String())
 	if err != nil {
 		r.l.Error(err)
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "refreshToken invalid",
-		})
+		var appError *apperror.AppError
+		if errors.As(err, &appError) {
+			returnErrorInResponse(c, appError)
+			return
+		}
+		returnErrorInResponse(c, apperror.Internal.New(ErrorMessageInternalServerError))
 		return
 	}
 	c.JSON(http.StatusOK, newTokenPair)

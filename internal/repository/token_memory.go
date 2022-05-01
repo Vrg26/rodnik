@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"rodnik/internal/apperror"
 	"sync"
 	"time"
 )
@@ -30,7 +31,7 @@ func (r *tokenMemory) CreateToken(ctx context.Context, userID string, tokenID st
 func (r *tokenMemory) GetUserIDByToken(ctx context.Context, tokenID string) (string, error) {
 	userId, ok := r.db[tokenID]
 	if !ok {
-		return "", errors.New("Could not found refresh token")
+		return "", apperror.Authorization.New(ErrorMessageTokenNotFound)
 	}
 	return userId, nil
 }

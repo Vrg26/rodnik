@@ -10,7 +10,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"net/http/httptest"
+	"rodnik/internal/apperror"
 	"rodnik/internal/entity"
+	"rodnik/internal/repository"
 	"rodnik/internal/service"
 	mock_service "rodnik/internal/service/mocks"
 	"rodnik/pkg/logger"
@@ -54,7 +56,7 @@ func Test_authRoute_register(t *testing.T) {
 			mockTokenBehavior:    func(s *mock_service.MockToken, userId string) {},
 			mockUserBehavior:     func(s *mock_service.MockUsers, user *entity.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: `{"error": "invalid request body"}`,
+			expectedResponseBody: `{"message": "invalid request body"}`,
 		},
 		{
 			name:      "Service Failure",
@@ -67,14 +69,14 @@ func Test_authRoute_register(t *testing.T) {
 			mockTokenBehavior: func(s *mock_service.MockToken, userId string) {
 				ctx := context.Background()
 				s.EXPECT().GetTokenPair(ctx, userId).Return(&service.TokenPair{AccessToken: "2345",
-					RefreshToken: refreshId}, errors.New("server error"))
+					RefreshToken: refreshId}, errors.New("server errors"))
 			},
 			mockUserBehavior: func(s *mock_service.MockUsers, user *entity.User) {
 				ctx := context.Background()
 				s.EXPECT().Create(ctx, user).Return(nil)
 			},
 			expectedStatusCode:   500,
-			expectedResponseBody: `{"error": "server error"}`,
+			expectedResponseBody: `{"message": "server errors"}`,
 		},
 	}
 
@@ -83,7 +85,7 @@ func Test_authRoute_register(t *testing.T) {
 			//Init Deps
 			c := gomock.NewController(t)
 			defer c.Finish()
-			l := logger.New("error")
+			l := logger.New("errors")
 			ts := mock_service.NewMockToken(c)
 			us := mock_service.NewMockUsers(c)
 
@@ -153,7 +155,7 @@ func Test_authRoute_login(t *testing.T) {
 			mockTokenBehavior:    func(s *mock_service.MockToken, userID string) {},
 			mockUserBehavior:     func(s *mock_service.MockUsers, user *entity.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: `{"error":"invalid request body"}`,
+			expectedResponseBody: `{"message":"field Phone is required"}`,
 		},
 		{
 			name:      "User service Failure",
@@ -165,10 +167,10 @@ func Test_authRoute_login(t *testing.T) {
 			mockTokenBehavior: func(s *mock_service.MockToken, userID string) {},
 			mockUserBehavior: func(s *mock_service.MockUsers, user *entity.User) {
 				ctx := context.Background()
-				s.EXPECT().Login(ctx, user).Return(errors.New("user not found"))
+				s.EXPECT().Login(ctx, user).Return(apperror.Authorization.New(service.ErrorMessageInvalidPhoneOrPassword))
 			},
-			expectedStatusCode:   403,
-			expectedResponseBody: `{"error": "Invalid phone and password combination"}`,
+			expectedStatusCode:   401,
+			expectedResponseBody: `{"message": "Invalid phone and password combination"}`,
 		},
 		{
 			name:      "Token service Failure",
@@ -186,7 +188,7 @@ func Test_authRoute_login(t *testing.T) {
 				s.EXPECT().Login(ctx, user).Return(nil)
 			},
 			expectedStatusCode:   500,
-			expectedResponseBody: `{"error": "server error"}`,
+			expectedResponseBody: `{"message":"Internal server error"}`,
 		},
 	}
 
@@ -198,7 +200,7 @@ func Test_authRoute_login(t *testing.T) {
 
 			ts := mock_service.NewMockToken(c)
 			us := mock_service.NewMockUsers(c)
-			l := logger.New("error")
+			l := logger.New("errors")
 
 			testCase.mockTokenBehavior(ts, testCase.inputUser.Id)
 			testCase.mockUserBehavior(us, &testCase.inputUser)
@@ -249,7 +251,7 @@ func Test_authRoute_refresh(t *testing.T) {
 			name:                 "Empty Fields",
 			mockTokenBehavior:    func(s *mock_service.MockToken, refreshToken string) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: `{"error": "invalid request body"}`,
+			expectedResponseBody: `{"message": "invalid request body"}`,
 		},
 		{
 			name:         "Service Failure",
@@ -257,10 +259,10 @@ func Test_authRoute_refresh(t *testing.T) {
 			inputBody:    fmt.Sprintf(`{"accessToken":"2345", "refreshToken":"%s"}`, refreshId.String()),
 			mockTokenBehavior: func(s *mock_service.MockToken, refreshToken string) {
 				ctx := context.Background()
-				s.EXPECT().RefreshToken(ctx, refreshToken).Return(nil, errors.New("token not found"))
+				s.EXPECT().RefreshToken(ctx, refreshToken).Return(nil, apperror.Authorization.New(repository.ErrorMessageTokenNotFound))
 			},
 			expectedStatusCode:   401,
-			expectedResponseBody: `{"error": "refreshToken invalid"}`,
+			expectedResponseBody: `{"message": "refreshToken invalid"}`,
 		},
 	}
 
@@ -268,7 +270,7 @@ func Test_authRoute_refresh(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
-			l := logger.New("error")
+			l := logger.New("errors")
 			ts := mock_service.NewMockToken(c)
 
 			authR := &authRoute{ts: ts, l: l}

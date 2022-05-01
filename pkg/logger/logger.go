@@ -15,7 +15,7 @@ func New(level string) *Logger {
 	var l zerolog.Level
 
 	switch strings.ToLower(level) {
-	case "error":
+	case "errors":
 		l = zerolog.ErrorLevel
 	case "warn":
 		l = zerolog.WarnLevel
@@ -41,7 +41,7 @@ func New(level string) *Logger {
 func (l *Logger) log(level, message string, args ...interface{}) {
 	if len(args) == 0 {
 		switch level {
-		case "error":
+		case "errors":
 			l.logger.Error().Msg(message)
 		case "warn":
 			l.logger.Warn().Msg(message)
@@ -54,7 +54,7 @@ func (l *Logger) log(level, message string, args ...interface{}) {
 		}
 	} else {
 		switch level {
-		case "error":
+		case "errors":
 			l.logger.Error().Msgf(message, args...)
 		case "warn":
 			l.logger.Warn().Msgf(message, args...)
@@ -92,7 +92,7 @@ func (l *Logger) Warn(message string, args ...interface{}) {
 }
 
 func (l *Logger) Error(message interface{}, args ...interface{}) {
-	l.msg("error", message, args)
+	l.msg("errors", message, args)
 }
 
 func (l *Logger) Fatal(message interface{}, args ...interface{}) {

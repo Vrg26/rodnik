@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"rodnik/internal/apperror"
 	"rodnik/internal/repository"
 	"rodnik/pkg/logger"
 	"time"
@@ -88,13 +88,12 @@ func (s *TokenService) ParseToken(tokenString string) (*CustomClaims, error) {
 	}
 
 	if !token.Valid {
-		//todo вынести ошибки отдельно
-		return nil, errors.New("TokenService is invalid")
+		return nil, apperror.Authorization.New(ErrorMessageInvalidToken)
 	}
 
 	claims, ok := token.Claims.(*CustomClaims)
 	if !ok {
-		return nil, errors.New("Couldn't parse claims")
+		return nil, apperror.Authorization.New(ErrorMessageFailedConvertToClaims)
 	}
 	return claims, nil
 }

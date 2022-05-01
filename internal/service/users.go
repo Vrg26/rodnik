@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"rodnik/internal/apperror"
 	"rodnik/internal/entity"
 	"rodnik/internal/repository"
 	"rodnik/pkg/hash"
@@ -38,10 +39,16 @@ func (s UsersService) Create(ctx context.Context, user *entity.User) error {
 func (s UsersService) Login(ctx context.Context, user *entity.User) error {
 	u, err := s.repo.FindByPhone(ctx, user.Phone)
 	if err != nil {
+		var appError *apperror.AppError
+		if errors.As(err, &appError) {
+			if appError.Type == apperror.NotFound {
+				return apperror.Authorization.New(ErrorMessageInvalidPhoneOrPassword)
+			}
+		}
 		return err
 	}
 	if match := hash.ComparePasswords(u.Password, user.Password); !match {
-		return errors.New("Invalid email and password combination")
+		return apperror.Authorization.New(ErrorMessageInvalidPhoneOrPassword)
 	}
 	*user = *u
 	return nil

@@ -2,8 +2,9 @@ package repository
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"github.com/google/uuid"
+	"rodnik/internal/apperror"
 	"rodnik/internal/entity"
 	"sync"
 )
@@ -41,5 +42,5 @@ func (r usersMemoryRepo) FindByPhone(ctx context.Context, phone string) (*entity
 			return value, nil
 		}
 	}
-	return nil, errors.New("User not found!")
+	return nil, apperror.NotFound.New(fmt.Sprintf(ErrorMessageUserNotFoundByPhone, phone))
 }

@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"rodnik/internal/apperror"
 	"rodnik/internal/service"
 	"strings"
 )
@@ -16,29 +16,20 @@ func AuthUser(ts service.Token) gin.HandlerFunc {
 		var h authHeader
 
 		if err := c.ShouldBindHeader(&h); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err,
-			})
-			c.Abort()
+			returnErrorInResponse(c, err)
 			return
 		}
 
 		tokenHeader := strings.Split(h.Token, "Bearer ")
 
 		if len(tokenHeader) < 2 {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Must provide Authorization header with format 'Bearer {token}'",
-			})
-			c.Abort()
+			returnErrorInResponse(c, apperror.Authorization.New(ErrorMessageInvalidHeaderAuth))
 			return
 		}
 
 		claim, err := ts.ParseToken(tokenHeader[1])
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "failed to parse token",
-			})
-			c.Abort()
+			returnErrorInResponse(c, err)
 			return
 		}
 		c.Set("userID", claim.UserID)

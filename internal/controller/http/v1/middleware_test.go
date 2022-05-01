@@ -1,11 +1,11 @@
 package v1
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"net/http/httptest"
+	"rodnik/internal/apperror"
 	"rodnik/internal/service"
 	mock_service "rodnik/internal/service/mocks"
 	"testing"
@@ -39,7 +39,7 @@ func TestAuthUser(t *testing.T) {
 			headerName:           "",
 			mockBehavior:         func(s *mock_service.MockToken, token string) {},
 			expectedStatusCode:   401,
-			expectedResponseBody: `{"error": "Must provide Authorization header with format 'Bearer {token}'"}`,
+			expectedResponseBody: `{"message": "Must provide Authorization header with format 'Bearer {token}'"}`,
 		},
 		{
 			name:                 "Invalid Bearer",
@@ -48,7 +48,7 @@ func TestAuthUser(t *testing.T) {
 			token:                "token",
 			mockBehavior:         func(s *mock_service.MockToken, token string) {},
 			expectedStatusCode:   401,
-			expectedResponseBody: `{"error": "Must provide Authorization header with format 'Bearer {token}'"}`,
+			expectedResponseBody: `{"message": "Must provide Authorization header with format 'Bearer {token}'"}`,
 		},
 		{
 			name:        "Service Failure",
@@ -57,10 +57,10 @@ func TestAuthUser(t *testing.T) {
 			token:       "token",
 			mockBehavior: func(s *mock_service.MockToken, token string) {
 				s.EXPECT().ParseToken(token).Return(&service.CustomClaims{UserID: "1"},
-					errors.New("failed to parse token"))
+					apperror.Authorization.New(service.ErrorMessageInvalidToken))
 			},
 			expectedStatusCode:   401,
-			expectedResponseBody: `{"error": "failed to parse token"}`,
+			expectedResponseBody: `{"message":"Invalid token"}`,
 		},
 	}
 
