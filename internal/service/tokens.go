@@ -17,8 +17,8 @@ type CustomClaims struct {
 
 // todo вынести в слой моделей
 type TokenPair struct {
-	AccessToken  string    `json:"accessToken"`
-	RefreshToken uuid.UUID `json:"refreshToken"`
+	AccessToken  string    `json:"access_token"`
+	RefreshToken uuid.UUID `json:"refresh_token"`
 }
 
 type TokenService struct {

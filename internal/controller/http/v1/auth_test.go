@@ -49,7 +49,7 @@ func Test_authRoute_register(t *testing.T) {
 				s.EXPECT().Create(ctx, user).Return(nil)
 			},
 			expectedStatusCode:   201,
-			expectedResponseBody: fmt.Sprintf(`{"accessToken":"2345", "refreshToken":"%s"}`, refreshId.String()),
+			expectedResponseBody: fmt.Sprintf(`{"access_token":"2345", "refresh_token":"%s"}`, refreshId.String()),
 		},
 		{
 			name:                 "Empty Fields",
@@ -143,7 +143,7 @@ func Test_authRoute_login(t *testing.T) {
 				s.EXPECT().Login(ctx, user).Return(nil)
 			},
 			expectedStatusCode:   201,
-			expectedResponseBody: fmt.Sprintf(`{"accessToken":"2345", "refreshToken":"%s"}`, refreshId.String()),
+			expectedResponseBody: fmt.Sprintf(`{"access_token":"2345", "refresh_token":"%s"}`, refreshId.String()),
 		},
 		{
 			name:      "Invalid request body",
@@ -238,14 +238,14 @@ func Test_authRoute_refresh(t *testing.T) {
 	}{
 		{
 			name:         "Ok",
-			inputBody:    fmt.Sprintf(`{"accessToken":"2345", "refreshToken":"%s"}`, refreshId.String()),
+			inputBody:    fmt.Sprintf(`{"access_token":"2345", "refresh_token":"%s"}`, refreshId.String()),
 			refreshToken: refreshId.String(),
 			mockTokenBehavior: func(s *mock_service.MockToken, refreshToken string) {
 				ctx := context.Background()
 				s.EXPECT().RefreshToken(ctx, refreshToken).Return(&service.TokenPair{AccessToken: "2345", RefreshToken: refreshId}, nil)
 			},
 			expectedStatusCode:   200,
-			expectedResponseBody: fmt.Sprintf(`{"accessToken":"2345", "refreshToken":"%s"}`, refreshId.String()),
+			expectedResponseBody: fmt.Sprintf(`{"access_token":"2345", "refresh_token":"%s"}`, refreshId.String()),
 		},
 		{
 			name:                 "Empty Fields",
@@ -256,7 +256,7 @@ func Test_authRoute_refresh(t *testing.T) {
 		{
 			name:         "Service Failure",
 			refreshToken: refreshId.String(),
-			inputBody:    fmt.Sprintf(`{"accessToken":"2345", "refreshToken":"%s"}`, refreshId.String()),
+			inputBody:    fmt.Sprintf(`{"access_token":"2345", "refresh_token":"%s"}`, refreshId.String()),
 			mockTokenBehavior: func(s *mock_service.MockToken, refreshToken string) {
 				ctx := context.Background()
 				s.EXPECT().RefreshToken(ctx, refreshToken).Return(nil, apperror.Authorization.New(repository.ErrorMessageTokenNotFound))
