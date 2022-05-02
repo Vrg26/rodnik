@@ -89,7 +89,7 @@ func Test_authRoute_register(t *testing.T) {
 			ts := mock_service.NewMockToken(c)
 			us := mock_service.NewMockUsers(c)
 
-			testCase.mockTokenBehavior(ts, testCase.inputUser.Id)
+			testCase.mockTokenBehavior(ts, testCase.inputUser.Id.String())
 			testCase.mockUserBehavior(us, &testCase.inputUser)
 
 			authR := &authRoute{ts: ts, us: us, l: l}
@@ -202,7 +202,7 @@ func Test_authRoute_login(t *testing.T) {
 			us := mock_service.NewMockUsers(c)
 			l := logger.New("errors")
 
-			testCase.mockTokenBehavior(ts, testCase.inputUser.Id)
+			testCase.mockTokenBehavior(ts, testCase.inputUser.Id.String())
 			testCase.mockUserBehavior(us, &testCase.inputUser)
 
 			authR := &authRoute{us, ts, l}

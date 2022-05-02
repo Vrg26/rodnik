@@ -58,7 +58,7 @@ func (r *authRoute) register(c *gin.Context) {
 		return
 	}
 
-	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id)
+	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id.String())
 	if err != nil {
 		r.l.Error(err)
 		returnErrorInResponse(c, err)
@@ -86,7 +86,7 @@ func (r *authRoute) login(c *gin.Context) {
 		return
 	}
 
-	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id)
+	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id.String())
 	if err != nil {
 		r.l.Error(err)
 		returnErrorInResponse(c, apperror.Internal.New(ErrorMessageInternalServerError))
