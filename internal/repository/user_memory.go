@@ -44,3 +44,13 @@ func (r *usersMemoryRepo) FindByPhone(ctx context.Context, phone string) (*entit
 	}
 	return nil, apperror.NotFound.New(fmt.Sprintf(ErrorMessageUserNotFoundByPhone, phone))
 }
+func (r *usersMemoryRepo) FindById(ctx context.Context, userID uuid.UUID) (*entity.User, error) {
+	user, ok := r.db[userID]
+	if !ok {
+		return nil, apperror.NotFound.New(fmt.Sprintf(ErrorMessageUserNotFoundById, userID.String()))
+	}
+	return user, nil
+}
+func (r *usersMemoryRepo) UpdateUserBalance(ctx context.Context, user *entity.User) error {
+	return nil
+}

@@ -18,3 +18,7 @@ type Users interface {
 	Create(ctx context.Context, user *entity.User) error
 	Login(ctx context.Context, user *entity.User) error
 }
+
+type Tasks interface {
+	Create(ctx context.Context, task *entity.Task) error
+}

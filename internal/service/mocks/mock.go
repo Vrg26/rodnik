@@ -145,3 +145,40 @@ func (mr *MockUsersMockRecorder) Login(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUsers)(nil).Login), ctx, user)
 }
+
+// MockTasks is a mock of Tasks interface.
+type MockTasks struct {
+	ctrl     *gomock.Controller
+	recorder *MockTasksMockRecorder
+}
+
+// MockTasksMockRecorder is the mock recorder for MockTasks.
+type MockTasksMockRecorder struct {
+	mock *MockTasks
+}
+
+// NewMockTasks creates a new mock instance.
+func NewMockTasks(ctrl *gomock.Controller) *MockTasks {
+	mock := &MockTasks{ctrl: ctrl}
+	mock.recorder = &MockTasksMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTasks) EXPECT() *MockTasksMockRecorder {
+	return m.recorder
+}
+
+// Create mocks base method.
+func (m *MockTasks) Create(ctx context.Context, task *entity.Task) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", ctx, task)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockTasksMockRecorder) Create(ctx, task interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTasks)(nil).Create), ctx, task)
+}

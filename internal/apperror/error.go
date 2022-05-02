@@ -7,6 +7,7 @@ const (
 	Conflict
 	Internal
 	Authorization
+	PaymentRequired
 )
 
 type ErrorType uint
