@@ -11,6 +11,7 @@ type RConfig struct {
 	Logger       *logger.Logger
 	UserService  *service.UsersService
 	TokenService *service.TokenService
+	TaskService  service.Tasks
 }
 
 func NewRouter(handler *gin.Engine, c *RConfig) {
@@ -20,5 +21,6 @@ func NewRouter(handler *gin.Engine, c *RConfig) {
 	h := handler.Group("/api")
 	{
 		newAuthRoutes(h, c.UserService, c.TokenService, c.Logger)
+		newTaskRoutes(h, c.TaskService, c.Logger)
 	}
 }

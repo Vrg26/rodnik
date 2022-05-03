@@ -43,6 +43,8 @@ func returnErrorInResponse(c *gin.Context, err error) {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, appError)
 		case apperror.Conflict:
 			c.AbortWithStatusJSON(http.StatusConflict, appError)
+		case apperror.PaymentRequired:
+			c.AbortWithStatusJSON(http.StatusPaymentRequired, appError)
 		case apperror.BadRequest:
 			c.AbortWithStatusJSON(http.StatusBadRequest, appError)
 		default:

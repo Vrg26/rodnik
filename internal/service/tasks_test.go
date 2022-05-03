@@ -14,14 +14,14 @@ import (
 )
 
 func Test_taskService_Create(t *testing.T) {
-	type mockRepTaskBehavior func(s *mock_repository.MockTasks, task *entity.Task)
+	type mockRepTaskBehavior func(s *mock_repository.MockRepoTasks, task *entity.Task)
 	type mockRepUserBehavior func(s *mock_repository.MockUsers, userID uuid.UUID)
 	testTable := []struct {
 		name                string
 		inputTask           *entity.Task
 		mockRepTaskBehavior mockRepTaskBehavior
 		mockRepUserBehavior mockRepUserBehavior
-		expectedResult      error
+		expectedError       error
 	}{
 		{
 			name: "Ok",
@@ -37,11 +37,11 @@ func Test_taskService_Create(t *testing.T) {
 				s.EXPECT().FindById(ctx, userID).Return(user, nil)
 				s.EXPECT().UpdateUserBalance(ctx, user).Return(nil)
 			},
-			mockRepTaskBehavior: func(s *mock_repository.MockTasks, task *entity.Task) {
+			mockRepTaskBehavior: func(s *mock_repository.MockRepoTasks, task *entity.Task) {
 				ctx := context.Background()
-				s.EXPECT().Create(ctx, task).Return(nil)
+				s.EXPECT().Create(ctx, task).Return(nil, nil)
 			},
-			expectedResult: nil,
+			expectedError: nil,
 		},
 		{
 			name: "Should return error \"User has no points\"",
@@ -56,8 +56,8 @@ func Test_taskService_Create(t *testing.T) {
 				user := &entity.User{Leaves: 200, Name: "test", Id: userID}
 				s.EXPECT().FindById(ctx, userID).Return(user, nil)
 			},
-			mockRepTaskBehavior: func(s *mock_repository.MockTasks, task *entity.Task) {},
-			expectedResult:      apperror.PaymentRequired.New(ErrorMessageNoFundsAvailable),
+			mockRepTaskBehavior: func(s *mock_repository.MockRepoTasks, task *entity.Task) {},
+			expectedError:       apperror.PaymentRequired.New(ErrorMessageNoFundsAvailable),
 		},
 		{
 			name: "Repository Failure",
@@ -72,8 +72,8 @@ func Test_taskService_Create(t *testing.T) {
 				user := &entity.User{Leaves: 200, Name: "test", Id: userID}
 				s.EXPECT().FindById(ctx, userID).Return(user, apperror.NotFound.New(repository.ErrorMessageUserNotFoundById))
 			},
-			mockRepTaskBehavior: func(s *mock_repository.MockTasks, task *entity.Task) {},
-			expectedResult:      apperror.NotFound.New(repository.ErrorMessageUserNotFoundById),
+			mockRepTaskBehavior: func(s *mock_repository.MockRepoTasks, task *entity.Task) {},
+			expectedError:       apperror.NotFound.New(repository.ErrorMessageUserNotFoundById),
 		},
 	}
 	for _, testCase := range testTable {
@@ -81,17 +81,18 @@ func Test_taskService_Create(t *testing.T) {
 			c := gomock.NewController(t)
 			defer c.Finish()
 			l := logger.New("errors")
-			tr := mock_repository.NewMockTasks(c)
+			tr := mock_repository.NewMockRepoTasks(c)
 			ur := mock_repository.NewMockUsers(c)
 			testCase.mockRepTaskBehavior(tr, testCase.inputTask)
 			testCase.mockRepUserBehavior(ur, testCase.inputTask.CreatorId)
 			ts := NewTaskService(tr, ur, *l)
 			ctx := context.Background()
 
-			if result := ts.Create(ctx, testCase.inputTask); result != nil {
-				assert.EqualError(t, result, testCase.expectedResult.Error())
+			_, err := ts.Create(ctx, testCase.inputTask)
+			if err != nil {
+				assert.EqualError(t, err, testCase.expectedError.Error())
 			} else {
-				assert.Equal(t, result, testCase.expectedResult)
+				assert.Equal(t, err, testCase.expectedError)
 			}
 		})
 	}

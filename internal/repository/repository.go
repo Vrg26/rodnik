@@ -23,7 +23,3 @@ type RefreshTokens interface {
 	DeleteToken(ctx context.Context, tokenID string) error
 	DeleteUserTokens(ctx context.Context, userId string) error
 }
-
-type Tasks interface {
-	Create(ctx context.Context, task *entity.Task) error
-}
