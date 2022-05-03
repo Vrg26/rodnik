@@ -43,7 +43,7 @@ func (r *authRoute) register(c *gin.Context) {
 	var regReq registerReq
 
 	if err := c.BindJSON(&regReq); err != nil {
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 
@@ -54,14 +54,14 @@ func (r *authRoute) register(c *gin.Context) {
 	}
 	if err := r.us.Create(ctx, u); err != nil {
 		r.l.Error(err)
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 
 	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id.String())
 	if err != nil {
 		r.l.Error(err)
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 	c.JSON(http.StatusCreated, tokenPair)
@@ -73,7 +73,7 @@ func (r *authRoute) login(c *gin.Context) {
 	var lReq loginReq
 
 	if err := c.BindJSON(&lReq); err != nil {
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 	u := &entity.User{
@@ -82,14 +82,14 @@ func (r *authRoute) login(c *gin.Context) {
 	}
 	if err := r.us.Login(ctx, u); err != nil {
 		r.l.Error(err)
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 
 	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id.String())
 	if err != nil {
 		r.l.Error(err)
-		returnErrorInResponse(c, apperror.Internal.New(ErrorMessageInternalServerError))
+		sendError(c, apperror.Internal.New(ErrorMessageInternalServerError))
 		return
 	}
 	c.JSON(http.StatusCreated, tokenPair)
@@ -100,7 +100,7 @@ func (r *authRoute) logout(c *gin.Context) {
 	ctx := c.Request.Context()
 	if err := r.ts.DeleteUserTokens(ctx, userId); err != nil {
 		r.l.Error(err)
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 	c.Status(http.StatusOK)
@@ -112,7 +112,7 @@ func (r authRoute) refresh(c *gin.Context) {
 	var tokenPair *service.TokenPair
 	if err := c.BindJSON(&tokenPair); err != nil {
 		r.l.Error(err.Error())
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 	newTokenPair, err := r.ts.RefreshToken(ctx, tokenPair.RefreshToken.String())
@@ -120,10 +120,10 @@ func (r authRoute) refresh(c *gin.Context) {
 		r.l.Error(err)
 		var appError *apperror.AppError
 		if errors.As(err, &appError) {
-			returnErrorInResponse(c, appError)
+			sendError(c, appError)
 			return
 		}
-		returnErrorInResponse(c, apperror.Internal.New(ErrorMessageInternalServerError))
+		sendError(c, apperror.Internal.New(ErrorMessageInternalServerError))
 		return
 	}
 	c.JSON(http.StatusOK, newTokenPair)

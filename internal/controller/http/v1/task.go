@@ -34,7 +34,7 @@ func newTaskRoutes(handler *gin.RouterGroup, ts service.Tasks, l *logger.Logger)
 func (r taskRoute) create(c *gin.Context) {
 	userID, ok := c.Get("userID")
 	if !ok || userID == nil {
-		returnErrorInResponse(c, apperror.Internal.New(ErrorMessageInternalServerError))
+		sendError(c, apperror.Internal.New(ErrorMessageInternalServerError))
 		return
 	}
 
@@ -44,7 +44,7 @@ func (r taskRoute) create(c *gin.Context) {
 
 	if err := c.BindJSON(&tReq); err != nil {
 		r.l.Error(err)
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 	testTask := &entity.Task{
@@ -57,7 +57,7 @@ func (r taskRoute) create(c *gin.Context) {
 	newTask, err := r.taskService.Create(ctx, testTask)
 
 	if err != nil {
-		returnErrorInResponse(c, err)
+		sendError(c, err)
 		return
 	}
 	c.JSON(http.StatusCreated, newTask)

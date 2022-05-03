@@ -16,20 +16,20 @@ func AuthUser(ts service.Token) gin.HandlerFunc {
 		var h authHeader
 
 		if err := c.ShouldBindHeader(&h); err != nil {
-			returnErrorInResponse(c, err)
+			sendError(c, err)
 			return
 		}
 
 		tokenHeader := strings.Split(h.Token, "Bearer ")
 
 		if len(tokenHeader) < 2 {
-			returnErrorInResponse(c, apperror.Authorization.New(ErrorMessageInvalidHeaderAuth))
+			sendError(c, apperror.Authorization.New(ErrorMessageInvalidHeaderAuth))
 			return
 		}
 
 		claim, err := ts.ParseToken(tokenHeader[1])
 		if err != nil {
-			returnErrorInResponse(c, err)
+			sendError(c, err)
 			return
 		}
 		c.Set("userID", claim.UserID)

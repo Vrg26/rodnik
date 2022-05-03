@@ -23,10 +23,10 @@ const (
 	ErrorMessageInvalidHeaderAuth        = "Must provide Authorization header with format 'Bearer {token}'"
 )
 
-func returnErrorInResponse(c *gin.Context, err error) {
-	var verr validator.ValidationErrors
-	if errors.As(err, &verr) {
-		err = apperror.BadRequest.New(getValidationErrorMessage(verr))
+func sendError(c *gin.Context, err error) {
+	var validationErrors validator.ValidationErrors
+	if errors.As(err, &validationErrors) {
+		err = apperror.BadRequest.New(getValidationErrorMessage(validationErrors))
 	}
 	if errors.Is(err, io.EOF) {
 		err = apperror.BadRequest.New(ErrorMessageInvalidRequestBody)
