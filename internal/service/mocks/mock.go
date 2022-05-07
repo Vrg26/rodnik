@@ -170,10 +170,10 @@ func (m *MockTasks) EXPECT() *MockTasksMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockTasks) Create(ctx context.Context, task *entity.Task) (entity.Task, error) {
+func (m *MockTasks) Create(ctx context.Context, task *entity.Task) (*entity.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, task)
-	ret0, _ := ret[0].(entity.Task)
+	ret0, _ := ret[0].(*entity.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

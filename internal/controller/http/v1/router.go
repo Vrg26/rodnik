@@ -21,6 +21,7 @@ func NewRouter(handler *gin.Engine, c *RConfig) {
 	h := handler.Group("/api")
 	{
 		newAuthRoutes(h, c.UserService, c.TokenService, c.Logger)
+		h.Use(AuthUser(c.TokenService))
 		newTaskRoutes(h, c.TaskService, c.Logger)
 	}
 }

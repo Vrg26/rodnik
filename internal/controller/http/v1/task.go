@@ -25,18 +25,19 @@ type taskRequest struct {
 
 func newTaskRoutes(handler *gin.RouterGroup, ts service.Tasks, l *logger.Logger) {
 	r := &taskRoute{ts, l}
-	h := handler.Group("/task")
+	h := handler.Group("/tasks")
 	{
 		h.POST("/", r.create)
 	}
 }
 
 func (r taskRoute) create(c *gin.Context) {
-	userID, ok := c.Get("userID")
-	if !ok || userID == nil {
+	userIDctx, ok := c.Get("userID")
+	if !ok || userIDctx == nil {
 		sendError(c, apperror.Internal.New(ErrorMessageInternalServerError))
 		return
 	}
+	userID, err := uuid.Parse(userIDctx.(string))
 
 	ctx := c.Request.Context()
 
@@ -47,11 +48,13 @@ func (r taskRoute) create(c *gin.Context) {
 		sendError(c, err)
 		return
 	}
+	// TODO Работа с статусами
 	testTask := &entity.Task{
 		Title:         tReq.Title,
 		Description:   tReq.Description,
 		Cost:          tReq.Cost,
-		CreatorId:     userID.(uuid.UUID),
+		Status:        "11b812e7-f6c0-4007-b161-b28ca41e5d13",
+		CreatorId:     userID,
 		DateRelevance: tReq.DateRelevance,
 	}
 	newTask, err := r.taskService.Create(ctx, testTask)

@@ -26,14 +26,17 @@ func Run(cfg *config.Config) {
 
 	userRepo := repository.NewUserPostgresRep(db, *l)
 	tokenRepo := repository.NewTokenMemory()
+	taskRepo := repository.NewTaskPostgresRep(db, *l)
 
 	tokenService := service.NewTokenService(tokenRepo, *l, []byte(cfg.SecretKey), 120, 2000)
 	userService := service.NewUserService(userRepo)
+	taskService := service.NewTaskService(taskRepo, userRepo, *l)
 
 	rConfig := &v1.RConfig{
 		TokenService: tokenService,
 		Logger:       l,
 		UserService:  userService,
+		TaskService:  taskService,
 	}
 	handler := gin.Default()
 	v1.NewRouter(handler, rConfig)

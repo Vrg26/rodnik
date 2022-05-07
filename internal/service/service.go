@@ -20,5 +20,5 @@ type Users interface {
 }
 
 type Tasks interface {
-	Create(ctx context.Context, task *entity.Task) (entity.Task, error)
+	Create(ctx context.Context, task *entity.Task) (*entity.Task, error)
 }
