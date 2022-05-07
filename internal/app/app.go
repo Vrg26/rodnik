@@ -1,7 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"net/http"
 	"rodnik/config"
 	v1 "rodnik/internal/controller/http/v1"
@@ -14,7 +16,15 @@ import (
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.LogLevel)
 
-	userRepo := repository.NewUsersMemoryRepo()
+	db, err := sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		cfg.PG.Host, cfg.PG.Port, cfg.PG.User, cfg.PG.Password, cfg.PG.DBName))
+
+	if err != nil {
+		l.Error("Database connection error: %v\n", err)
+	}
+
+	userRepo := repository.NewUserPostgresRep(db, *l)
 	tokenRepo := repository.NewTokenMemory()
 
 	tokenService := service.NewTokenService(tokenRepo, *l, []byte(cfg.SecretKey), 120, 2000)
