@@ -4,7 +4,6 @@ import (
 	"context"
 	"rodnik/internal/apperror"
 	"rodnik/internal/entity"
-	"rodnik/internal/repository"
 	"rodnik/pkg/logger"
 )
 
@@ -15,11 +14,11 @@ type RepoTasks interface {
 
 type taskService struct {
 	repTasks RepoTasks
-	repUsers repository.Users
+	repUsers UsersRepo
 	l        logger.Logger
 }
 
-func NewTaskService(repTasks RepoTasks, repUsers repository.Users, l logger.Logger) *taskService {
+func NewTaskService(repTasks RepoTasks, repUsers UsersRepo, l logger.Logger) *taskService {
 	return &taskService{
 		repTasks: repTasks,
 		repUsers: repUsers,

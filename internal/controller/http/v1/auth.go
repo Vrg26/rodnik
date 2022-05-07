@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -9,6 +10,11 @@ import (
 	"rodnik/internal/service"
 	"rodnik/pkg/logger"
 )
+
+type UsersService interface {
+	Create(ctx context.Context, user *entity.User) (*entity.User, error)
+	Login(ctx context.Context, user *entity.User) error
+}
 
 type loginReq struct {
 	Phone    string `json:"phone" binding:"required,min=10"`
@@ -22,12 +28,12 @@ type registerReq struct {
 }
 
 type authRoute struct {
-	us service.Users
+	us UsersService
 	ts service.Token
 	l  *logger.Logger
 }
 
-func newAuthRoutes(handler *gin.RouterGroup, us service.Users, ts service.Token, l *logger.Logger) {
+func newAuthRoutes(handler *gin.RouterGroup, us UsersService, ts service.Token, l *logger.Logger) {
 	r := &authRoute{us, ts, l}
 	h := handler.Group("/auth")
 	{
@@ -52,13 +58,15 @@ func (r *authRoute) register(c *gin.Context) {
 		Phone:    regReq.Phone,
 		Password: regReq.Password,
 	}
-	if err := r.us.Create(ctx, u); err != nil {
+
+	newUser, err := r.us.Create(ctx, u)
+	if err != nil {
 		r.l.Error(err)
 		sendError(c, err)
 		return
 	}
 
-	tokenPair, err := r.ts.GetTokenPair(ctx, u.Id.String())
+	tokenPair, err := r.ts.GetTokenPair(ctx, newUser.Id.String())
 	if err != nil {
 		r.l.Error(err)
 		sendError(c, err)
