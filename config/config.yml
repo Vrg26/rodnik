@@ -6,3 +6,11 @@ port: '8080'
 log_level: 'debug'
 
 secret_key: 'testtesttest'
+
+postgres:
+  host: 'localhost'
+  port: '5432'
+  user: 'test'
+  password: 'test'
+  dbname: 'rodnik_dev'
+  sslmode: 'disable'

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	cfg, err := config.NewConfig()
+	cfg, err := config.GetConfig()
 	if err != nil {
 		log.Fatalf("Config errors: %s", err)
 	}
