@@ -11,6 +11,7 @@ import (
 	"rodnik/pkg/logger"
 )
 
+//go:generate mockgen -source=users.go -destination=../repository/mocks/user_mock.go -package=mock_repository
 type UsersRepo interface {
 	Create(ctx context.Context, user *entity.User) (*entity.User, error)
 	FindByPhone(ctx context.Context, phone string) (*entity.User, error)

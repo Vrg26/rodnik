@@ -15,7 +15,7 @@ import (
 
 func Test_taskService_Create(t *testing.T) {
 	type mockRepTaskBehavior func(s *mock_repository.MockRepoTasks, task *entity.Task)
-	type mockRepUserBehavior func(s *mock_repository.MockUsers, userID uuid.UUID)
+	type mockRepUserBehavior func(s *mock_repository.MockUsersRepo, userID uuid.UUID)
 	testTable := []struct {
 		name                string
 		inputTask           *entity.Task
@@ -31,7 +31,7 @@ func Test_taskService_Create(t *testing.T) {
 				CreatorId:   uuid.New(),
 				Cost:        200,
 			},
-			mockRepUserBehavior: func(s *mock_repository.MockUsers, userID uuid.UUID) {
+			mockRepUserBehavior: func(s *mock_repository.MockUsersRepo, userID uuid.UUID) {
 				ctx := context.Background()
 				user := &entity.User{Leaves: 200, Name: "test", Id: userID}
 				s.EXPECT().FindById(ctx, userID).Return(user, nil)
@@ -51,7 +51,7 @@ func Test_taskService_Create(t *testing.T) {
 				CreatorId:   uuid.New(),
 				Cost:        500,
 			},
-			mockRepUserBehavior: func(s *mock_repository.MockUsers, userID uuid.UUID) {
+			mockRepUserBehavior: func(s *mock_repository.MockUsersRepo, userID uuid.UUID) {
 				ctx := context.Background()
 				user := &entity.User{Leaves: 200, Name: "test", Id: userID}
 				s.EXPECT().FindById(ctx, userID).Return(user, nil)
@@ -67,7 +67,7 @@ func Test_taskService_Create(t *testing.T) {
 				CreatorId:   uuid.New(),
 				Cost:        500,
 			},
-			mockRepUserBehavior: func(s *mock_repository.MockUsers, userID uuid.UUID) {
+			mockRepUserBehavior: func(s *mock_repository.MockUsersRepo, userID uuid.UUID) {
 				ctx := context.Background()
 				user := &entity.User{Leaves: 200, Name: "test", Id: userID}
 				s.EXPECT().FindById(ctx, userID).Return(user, apperror.NotFound.New(repository.ErrorMessageUserNotFoundById))
@@ -82,7 +82,7 @@ func Test_taskService_Create(t *testing.T) {
 			defer c.Finish()
 			l := logger.New("errors")
 			tr := mock_repository.NewMockRepoTasks(c)
-			ur := mock_repository.NewMockUsers(c)
+			ur := mock_repository.NewMockUsersRepo(c)
 			testCase.mockRepTaskBehavior(tr, testCase.inputTask)
 			testCase.mockRepUserBehavior(ur, testCase.inputTask.CreatorId)
 			ts := NewTaskService(tr, ur, *l)

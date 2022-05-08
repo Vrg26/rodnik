@@ -7,7 +7,7 @@ import (
 	"rodnik/pkg/logger"
 )
 
-//go:generate mockgen -source=tasks.go -destination=../repository/mocks/taskRepoMock.go -package=mock_repository
+//go:generate mockgen -source=tasks.go -destination=../repository/mocks/task_mock.go -package=mock_repository
 type RepoTasks interface {
 	Create(ctx context.Context, task *entity.Task) (*entity.Task, error)
 }
