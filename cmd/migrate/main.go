@@ -15,8 +15,9 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s, dbname=%s sslmode=%s",
-		cfg.PG.Host, cfg.PG.Port, cfg.PG.User, cfg.PG.Password, cfg.PG.DBName, cfg.PG.SSLMode)
+	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		cfg.PG.Host, cfg.PG.Port, cfg.PG.User, cfg.PG.Password, cfg.PG.DBName)
 	db, err := sql.Open("postgres", sqlInfo)
 	if err != nil {
 		log.Fatalf("Error connectiong: %v\n", err)
