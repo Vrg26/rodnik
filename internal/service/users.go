@@ -29,6 +29,10 @@ func NewUserService(repo UsersRepo) *UsersService {
 	}
 }
 
+const (
+	InitialSum = 1000
+)
+
 func (s UsersService) Create(ctx context.Context, user *entity.User) (*entity.User, error) {
 	passHash, err := hash.GetHashAndSalt([]byte(user.Password))
 	if err != nil {
@@ -36,7 +40,7 @@ func (s UsersService) Create(ctx context.Context, user *entity.User) (*entity.Us
 		return nil, err
 	}
 	user.Password = passHash
-
+	user.Leaves = InitialSum
 	newUser, err := s.repo.Create(ctx, user)
 	if err != nil {
 		var rqErr *pq.Error
