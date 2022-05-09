@@ -14,8 +14,8 @@ services:
       - '5432:5432'
   migrations:
     build:
-      context: .
-      dockerfile: ./docker/migrate/Dockerfile
+      context: ./main-service
+      dockerfile: docker/migrate/Dockerfile
     networks:
       - new
     environment:
@@ -29,14 +29,14 @@ services:
       - PG_DB_NAME=rodnik_dev
       - PG_SSL_MODE=disable
     volumes:
-      - ./:/app
+      - ./main-service:/app
     depends_on:
       - database
 
   rodnik:
     build:
-      context: .
-      dockerfile: ./docker/rodnik/Dockerfile
+      context: ./main-service
+      dockerfile: docker/rodnik/Dockerfile
     ports:
       - '8086:8086'
     networks:
@@ -52,8 +52,19 @@ services:
       - PG_DB_NAME=rodnik_dev
       - PG_SSL_MODE=disable
     volumes:
-      - ./:/app
+      - ./main-service:/app
     depends_on:
       - migrations
+
+  image-service:
+    image: golang:1.18-alpine
+    environment:
+      - SERVER_ADDRESS=:4500
+    volumes:
+      - ./image-service:/app
+    working_dir: /app/cmd/
+    command: go run main.go
+    ports:
+      - '4500:4500'
 networks:
   new:

@@ -4,3 +4,5 @@
 
 # Config
 .env
+
+image-service/uploads
