@@ -40,6 +40,7 @@ func Test_taskRoute_create(t *testing.T) {
 				Title:         "test",
 				Description:   "test",
 				Cost:          200,
+				Status:        "11b812e7-f6c0-4007-b161-b28ca41e5d13",
 				CreatorId:     userID,
 				DateRelevance: dateRelevance,
 			},
@@ -80,12 +81,13 @@ func Test_taskRoute_create(t *testing.T) {
 				Title:         "test",
 				Description:   "test",
 				Cost:          200,
+				Status:        "11b812e7-f6c0-4007-b161-b28ca41e5d13",
 				CreatorId:     userID,
 				DateRelevance: dateRelevance,
 			},
 			mockTaskServiceBehavior: func(s *mock_service.MockTasks, task *entity.Task) {
 				ctx := context.Background()
-				s.EXPECT().Create(ctx, task).Return(entity.Task{}, apperror.PaymentRequired.New(service.ErrorMessageNoFundsAvailable))
+				s.EXPECT().Create(ctx, task).Return(&entity.Task{}, apperror.PaymentRequired.New(service.ErrorMessageNoFundsAvailable))
 			},
 			expectedStatusCode:   402,
 			expectedResponseBody: `{"message":"User does not have enough funds to create a task"}`,
