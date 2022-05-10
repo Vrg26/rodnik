@@ -147,6 +147,21 @@ func (mr *MockUsersMockRecorder) Login(ctx, user interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUsers)(nil).Login), ctx, user)
 }
 
+// SetAvatar mocks base method.
+func (m *MockUsers) SetAvatar(ctx context.Context, userID string, imageBytes []byte) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAvatar", ctx, userID, imageBytes)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SetAvatar indicates an expected call of SetAvatar.
+func (mr *MockUsersMockRecorder) SetAvatar(ctx, userID, imageBytes interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAvatar", reflect.TypeOf((*MockUsers)(nil).SetAvatar), ctx, userID, imageBytes)
+}
+
 // MockTasks is a mock of Tasks interface.
 type MockTasks struct {
 	ctrl     *gomock.Controller

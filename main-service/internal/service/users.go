@@ -3,12 +3,15 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"io"
 	"main-service/internal/apperror"
 	"main-service/internal/entity"
 	"main-service/pkg/hash"
 	"main-service/pkg/logger"
+	"net/http"
 )
 
 //go:generate mockgen -source=users.go -destination=../repository/mocks/user_mock.go -package=mock_repository
@@ -16,17 +19,26 @@ type UsersRepo interface {
 	Create(ctx context.Context, user *entity.User) (*entity.User, error)
 	FindByPhone(ctx context.Context, phone string) (*entity.User, error)
 	UpdateUserBalance(ctx context.Context, user *entity.User) error
-	FindById(ctx context.Context, userId uuid.UUID) (*entity.User, error)
+	FindById(ctx context.Context, userID uuid.UUID) (*entity.User, error)
+	SetAvatar(ctx context.Context, userID string, avatarName string) error
+}
+
+type clientImageService interface {
+	Upload(ctx context.Context, image []byte) (*http.Response, error)
+	GetURL() string
 }
 
 type UsersService struct {
-	repo UsersRepo
-	l    logger.Logger
+	client clientImageService
+	repo   UsersRepo
+	l      logger.Logger
 }
 
-func NewUserService(repo UsersRepo) *UsersService {
+func NewUserService(client clientImageService, repo UsersRepo, logger logger.Logger) *UsersService {
 	return &UsersService{
-		repo: repo,
+		client: client,
+		repo:   repo,
+		l:      logger,
 	}
 }
 
@@ -69,4 +81,23 @@ func (s *UsersService) Login(ctx context.Context, user *entity.User) error {
 	}
 	*user = *u
 	return nil
+}
+
+func (s *UsersService) SetAvatar(ctx context.Context, userID string, imageBytes []byte) (string, error) {
+	res, err := s.client.Upload(ctx, imageBytes)
+
+	if err != nil {
+		return "", err
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	if err = s.repo.SetAvatar(ctx, userID, string(body)); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s/%s", s.client.GetURL(), string(body)), nil
 }

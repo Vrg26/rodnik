@@ -17,6 +17,7 @@ type Token interface {
 type Users interface {
 	Create(ctx context.Context, user *entity.User) (*entity.User, error)
 	Login(ctx context.Context, user *entity.User) error
+	SetAvatar(ctx context.Context, userID string, imageBytes []byte) (string, error)
 }
 
 type Tasks interface {

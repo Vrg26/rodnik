@@ -7,10 +7,11 @@ import (
 
 type (
 	Config struct {
-		Port      string `yaml:"port" env:"HTTP_PORT" envDefault:"8080"`
-		LogLevel  string `yaml:"log_level" env:"LOG_LEVEL" envDefault:"info"`
-		PG        `yaml:"postgres"`
-		SecretKey string `yaml:"secret_key" env:"SECRET_KEY"`
+		Port            string `yaml:"port" env:"HTTP_PORT" envDefault:"8080"`
+		LogLevel        string `yaml:"log_level" env:"LOG_LEVEL" envDefault:"info"`
+		ImageServiceURL string `yaml:"image_service_url" env:"IMAGE_SERVICE_URL"`
+		PG              `yaml:"postgres"`
+		SecretKey       string `yaml:"secret_key" env:"SECRET_KEY"`
 	}
 	PG struct {
 		Host     string `yaml:"host" env:"PG_HOST"`

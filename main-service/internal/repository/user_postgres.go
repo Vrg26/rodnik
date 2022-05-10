@@ -103,3 +103,19 @@ func (r *userPostgres) FindById(ctx context.Context, userID uuid.UUID) (*entity.
 	}
 	return user, nil
 }
+
+func (r *userPostgres) SetAvatar(ctx context.Context, userID string, avatarName string) error {
+	sqlText, values, err := squirrel.Update(userTableName).
+		Set("avatar", avatarName).
+		Where("id = $2", userID).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.ExecContext(ctx, sqlText, values...)
+	if err != nil {
+		return err
+	}
+	return nil
+}

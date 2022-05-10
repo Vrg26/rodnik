@@ -12,5 +12,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Config errors: %s", err)
 	}
+
 	app.Run(cfg)
 }

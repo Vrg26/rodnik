@@ -6,8 +6,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"main-service/config"
 	"main-service/internal/controller/http/v1"
-	repository2 "main-service/internal/repository"
-	service2 "main-service/internal/service"
+	"main-service/internal/repository"
+	"main-service/internal/service"
+	"main-service/pkg/client/image-service"
 	"main-service/pkg/logger"
 	"net/http"
 	"time"
@@ -23,14 +24,15 @@ func Run(cfg *config.Config) {
 	if err != nil {
 		l.Error("Database connection error: %v\n", err)
 	}
+	clientImageService := image_service.NewClient(cfg.ImageServiceURL, &http.Client{})
 
-	userRepo := repository2.NewUserPostgresRep(db, *l)
-	tokenRepo := repository2.NewTokenMemory()
-	taskRepo := repository2.NewTaskPostgresRep(db, *l)
+	userRepo := repository.NewUserPostgresRep(db, *l)
+	tokenRepo := repository.NewTokenMemory()
+	taskRepo := repository.NewTaskPostgresRep(db, *l)
 
-	tokenService := service2.NewTokenService(tokenRepo, *l, []byte(cfg.SecretKey), 120, 2000)
-	userService := service2.NewUserService(userRepo)
-	taskService := service2.NewTaskService(taskRepo, userRepo, *l)
+	tokenService := service.NewTokenService(tokenRepo, *l, []byte(cfg.SecretKey), 5000, 2000)
+	userService := service.NewUserService(clientImageService, userRepo, *l)
+	taskService := service.NewTaskService(taskRepo, userRepo, *l)
 
 	rConfig := &v1.RConfig{
 		TokenService: tokenService,

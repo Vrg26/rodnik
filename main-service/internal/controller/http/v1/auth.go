@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"main-service/internal/apperror"
 	"main-service/internal/entity"
-	service2 "main-service/internal/service"
+	"main-service/internal/service"
 	"main-service/pkg/logger"
 	"net/http"
 )
@@ -14,6 +14,7 @@ import (
 type UsersService interface {
 	Create(ctx context.Context, user *entity.User) (*entity.User, error)
 	Login(ctx context.Context, user *entity.User) error
+	SetAvatar(ctx context.Context, userID string, imageBytes []byte) (string, error)
 }
 
 type loginReq struct {
@@ -29,11 +30,11 @@ type registerReq struct {
 
 type authRoute struct {
 	us UsersService
-	ts service2.Token
+	ts service.Token
 	l  *logger.Logger
 }
 
-func newAuthRoutes(handler *gin.RouterGroup, us UsersService, ts service2.Token, l *logger.Logger) {
+func newAuthRoutes(handler *gin.RouterGroup, us UsersService, ts service.Token, l *logger.Logger) {
 	r := &authRoute{us, ts, l}
 	h := handler.Group("/auth")
 	{
@@ -117,7 +118,7 @@ func (r *authRoute) logout(c *gin.Context) {
 func (r authRoute) refresh(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var tokenPair *service2.TokenPair
+	var tokenPair *service.TokenPair
 	if err := c.BindJSON(&tokenPair); err != nil {
 		r.l.Error(err.Error())
 		sendError(c, err)
