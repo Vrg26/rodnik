@@ -23,6 +23,7 @@ func Test_authRoute_register(t *testing.T) {
 	type mockTokenBehavior func(s *mock_service.MockToken, userId string)
 	type mockUserBehavior func(s *mock_service.MockUsers, user *entity.User)
 	refreshId, _ := uuid.NewRandom()
+	userID := uuid.MustParse("541a283d-043c-447e-b5f2-bcb888a129fc")
 	testTable := []struct {
 		name                 string
 		inputBody            string
@@ -46,7 +47,12 @@ func Test_authRoute_register(t *testing.T) {
 			},
 			mockUserBehavior: func(s *mock_service.MockUsers, user *entity.User) {
 				ctx := context.Background()
-				s.EXPECT().Create(ctx, user).Return(nil)
+				s.EXPECT().Create(ctx, user).Return(&entity.User{
+					Id:       userID,
+					Name:     "Test",
+					Phone:    "89229148164",
+					Password: "qwert1234",
+				}, nil)
 			},
 			expectedStatusCode:   201,
 			expectedResponseBody: fmt.Sprintf(`{"access_token":"2345", "refresh_token":"%s"}`, refreshId.String()),
@@ -73,7 +79,12 @@ func Test_authRoute_register(t *testing.T) {
 			},
 			mockUserBehavior: func(s *mock_service.MockUsers, user *entity.User) {
 				ctx := context.Background()
-				s.EXPECT().Create(ctx, user).Return(nil)
+				s.EXPECT().Create(ctx, user).Return(&entity.User{
+					Id:       userID,
+					Name:     "Test",
+					Phone:    "89229148164",
+					Password: "qwert1234",
+				}, nil)
 			},
 			expectedStatusCode:   500,
 			expectedResponseBody: `{"message": "server errors"}`,
@@ -89,7 +100,7 @@ func Test_authRoute_register(t *testing.T) {
 			ts := mock_service.NewMockToken(c)
 			us := mock_service.NewMockUsers(c)
 
-			testCase.mockTokenBehavior(ts, testCase.inputUser.Id.String())
+			testCase.mockTokenBehavior(ts, userID.String())
 			testCase.mockUserBehavior(us, &testCase.inputUser)
 
 			authR := &authRoute{ts: ts, us: us, l: l}
