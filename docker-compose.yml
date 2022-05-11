@@ -61,7 +61,7 @@ services:
     environment:
       - SERVER_ADDRESS=:4500
     volumes:
-      - ./image_service:/app
+      - ./image-service:/app
     working_dir: /app/cmd/
     command: go run main.go
     ports:

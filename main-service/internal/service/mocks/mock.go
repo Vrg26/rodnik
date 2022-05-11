@@ -118,6 +118,20 @@ func (m *MockUsers) EXPECT() *MockUsersMockRecorder {
 	return m.recorder
 }
 
+// AddToFriends mocks base method.
+func (m *MockUsers) AddToFriends(ctx context.Context, friendships *entity.Freindships) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddToFriends", ctx, friendships)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddToFriends indicates an expected call of AddToFriends.
+func (mr *MockUsersMockRecorder) AddToFriends(ctx, friendships interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToFriends", reflect.TypeOf((*MockUsers)(nil).AddToFriends), ctx, friendships)
+}
+
 // Create mocks base method.
 func (m *MockUsers) Create(ctx context.Context, user *entity.User) (*entity.User, error) {
 	m.ctrl.T.Helper()

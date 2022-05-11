@@ -16,7 +16,8 @@ type userPostgres struct {
 }
 
 const (
-	userTableName = "users"
+	userTableName        = "users"
+	friendshipsTableName = "friendships"
 )
 
 func NewUserPostgresRep(db *sqlx.DB, logger logger.Logger) *userPostgres {
@@ -118,4 +119,18 @@ func (r *userPostgres) SetAvatar(ctx context.Context, userID string, avatarName 
 		return err
 	}
 	return nil
+}
+
+func (r *userPostgres) AddToFriends(ctx context.Context, friendships *entity.Freindships) error {
+	sqlText, values, err := squirrel.Insert(friendshipsTableName).
+		Columns("friend_from", "friend_to").
+		Values(friendships.FriendFrom, friendships.FriendTo).
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+	if err != nil {
+		return nil
+	}
+
+	_, err = r.db.ExecContext(ctx, sqlText, values...)
+	return err
 }

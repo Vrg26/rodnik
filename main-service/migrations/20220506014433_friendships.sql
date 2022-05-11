@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE freindships(
+CREATE TABLE friendships(
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     created_on timestamp DEFAULT now(),
     friend_from uuid NOT NULL REFERENCES users ("id"),

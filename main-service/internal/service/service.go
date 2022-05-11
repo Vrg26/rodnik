@@ -18,6 +18,7 @@ type Users interface {
 	Create(ctx context.Context, user *entity.User) (*entity.User, error)
 	Login(ctx context.Context, user *entity.User) error
 	SetAvatar(ctx context.Context, userID string, imageBytes []byte) (string, error)
+	AddToFriends(ctx context.Context, friendships *entity.Freindships) error
 }
 
 type Tasks interface {

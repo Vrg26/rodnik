@@ -22,6 +22,7 @@ type UsersRepo interface {
 	UpdateUserBalance(ctx context.Context, user *entity.User) error
 	FindById(ctx context.Context, userID uuid.UUID) (*entity.User, error)
 	SetAvatar(ctx context.Context, userID string, avatarName string) error
+	AddToFriends(ctx context.Context, friendships *entity.Freindships) error
 }
 
 type ClientImageService interface {
@@ -106,4 +107,21 @@ func (s *UsersService) SetAvatar(ctx context.Context, userID string, imageBytes 
 	}
 
 	return fmt.Sprintf("%s/%s", s.client.GetURL(), string(body)), nil
+}
+
+func (s *UsersService) AddToFriends(ctx context.Context, friendships *entity.Freindships) error {
+
+	if friendships.FriendFrom == friendships.FriendTo {
+		return apperror.BadRequest.New(ErrorMessageUserCannotAddHimselfAsFriend)
+	}
+
+	err := s.repo.AddToFriends(ctx, friendships)
+	if err != nil {
+		var rqErr *pq.Error
+		if errors.As(err, &rqErr) && rqErr.Code == "23503" {
+			return apperror.NotFound.New(ErrorMessageFriendNotFound)
+		}
+		return apperror.Internal.New(ErrorMessageInternalServerError)
+	}
+	return nil
 }

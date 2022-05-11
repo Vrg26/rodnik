@@ -9,7 +9,7 @@ import (
 
 type RConfig struct {
 	Logger       *logger.Logger
-	UserService  *service.UsersService
+	UserService  UsersService
 	TokenService *service.TokenService
 	TaskService  service.Tasks
 }

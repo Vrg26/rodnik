@@ -7,6 +7,7 @@ package mock_repository
 import (
 	context "context"
 	entity "main-service/internal/entity"
+	http "net/http"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,6 +35,20 @@ func NewMockUsersRepo(ctrl *gomock.Controller) *MockUsersRepo {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUsersRepo) EXPECT() *MockUsersRepoMockRecorder {
 	return m.recorder
+}
+
+// AddToFriends mocks base method.
+func (m *MockUsersRepo) AddToFriends(ctx context.Context, friendships *entity.Freindships) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddToFriends", ctx, friendships)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddToFriends indicates an expected call of AddToFriends.
+func (mr *MockUsersRepoMockRecorder) AddToFriends(ctx, friendships interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToFriends", reflect.TypeOf((*MockUsersRepo)(nil).AddToFriends), ctx, friendships)
 }
 
 // Create mocks base method.
@@ -107,4 +122,56 @@ func (m *MockUsersRepo) UpdateUserBalance(ctx context.Context, user *entity.User
 func (mr *MockUsersRepoMockRecorder) UpdateUserBalance(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserBalance", reflect.TypeOf((*MockUsersRepo)(nil).UpdateUserBalance), ctx, user)
+}
+
+// MockClientImageService is a mock of ClientImageService interface.
+type MockClientImageService struct {
+	ctrl     *gomock.Controller
+	recorder *MockClientImageServiceMockRecorder
+}
+
+// MockClientImageServiceMockRecorder is the mock recorder for MockClientImageService.
+type MockClientImageServiceMockRecorder struct {
+	mock *MockClientImageService
+}
+
+// NewMockClientImageService creates a new mock instance.
+func NewMockClientImageService(ctrl *gomock.Controller) *MockClientImageService {
+	mock := &MockClientImageService{ctrl: ctrl}
+	mock.recorder = &MockClientImageServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockClientImageService) EXPECT() *MockClientImageServiceMockRecorder {
+	return m.recorder
+}
+
+// GetURL mocks base method.
+func (m *MockClientImageService) GetURL() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetURL")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetURL indicates an expected call of GetURL.
+func (mr *MockClientImageServiceMockRecorder) GetURL() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetURL", reflect.TypeOf((*MockClientImageService)(nil).GetURL))
+}
+
+// Upload mocks base method.
+func (m *MockClientImageService) Upload(ctx context.Context, image []byte) (*http.Response, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Upload", ctx, image)
+	ret0, _ := ret[0].(*http.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Upload indicates an expected call of Upload.
+func (mr *MockClientImageServiceMockRecorder) Upload(ctx, image interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockClientImageService)(nil).Upload), ctx, image)
 }
