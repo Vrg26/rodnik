@@ -1,0 +1,17 @@
+app:
+  name: 'rodnik'
+  version: '0.0.1'
+
+port: '8080'
+log_level: 'debug'
+
+secret_key: 'testtesttest'
+image_service_url: "http://localhost:4500"
+
+postgres:
+  host: 'localhost'
+  port: '5432'
+  user: 'test'
+  password: 'test'
+  dbname: 'rodnik_dev'
+  sslmode: 'disable'

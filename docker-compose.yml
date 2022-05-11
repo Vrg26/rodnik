@@ -1,0 +1,70 @@
+version: "3"
+services:
+  database:
+    image: "postgres"
+    networks:
+      new:
+        aliases:
+          - database
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=rodnik_dev
+    ports:
+      - '5432:5432'
+  migrations:
+    build:
+      context: ./main-service
+      dockerfile: docker/migrate/Dockerfile
+    networks:
+      - new
+    environment:
+      - HTTP_PORT=8086
+      - LOG_LEVEL=debug
+      - SECRET_KEY=testsecretkey
+      - PG_HOST=database
+      - PG_PORT=5432
+      - PG_USER=test
+      - PG_PASSWORD=test
+      - PG_DB_NAME=rodnik_dev
+      - PG_SSL_MODE=disable
+    volumes:
+      - ./main-service:/app
+    depends_on:
+      - database
+
+  rodnik:
+    build:
+      context: ./main-service
+      dockerfile: docker/rodnik/Dockerfile
+    ports:
+      - '8086:8086'
+    networks:
+      - new
+    environment:
+      - HTTP_PORT=8086
+      - LOG_LEVEL=debug
+      - SECRET_KEY=testsecretkey
+      - PG_HOST=database
+      - PG_PORT=5432
+      - PG_USER=test
+      - PG_PASSWORD=test
+      - PG_DB_NAME=rodnik_dev
+      - PG_SSL_MODE=disable
+    volumes:
+      - ./main-service:/app
+    depends_on:
+      - migrations
+
+  image-service:
+    image: golang:1.18-alpine
+    environment:
+      - SERVER_ADDRESS=:4500
+    volumes:
+      - ./image-service:/app
+    working_dir: /app/cmd/
+    command: go run main.go
+    ports:
+      - '4500:4500'
+networks:
+  new:
