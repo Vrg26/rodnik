@@ -8,7 +8,7 @@ import (
 	"main-service/internal/controller/http/v1"
 	"main-service/internal/repository"
 	"main-service/internal/service"
-	"main-service/pkg/client/image-service"
+	"main-service/pkg/client/image_service"
 	"main-service/pkg/logger"
 	"net/http"
 	"time"
@@ -31,7 +31,7 @@ func Run(cfg *config.Config) {
 	taskRepo := repository.NewTaskPostgresRep(db, *l)
 
 	tokenService := service.NewTokenService(tokenRepo, *l, []byte(cfg.SecretKey), 5000, 2000)
-	userService := service.NewUserService(clientImageService, userRepo, *l)
+	userService := service.NewUserService(clientImageService, userRepo, l)
 	taskService := service.NewTaskService(taskRepo, userRepo, *l)
 
 	rConfig := &v1.RConfig{

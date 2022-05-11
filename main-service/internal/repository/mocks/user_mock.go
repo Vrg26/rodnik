@@ -7,7 +7,6 @@ package mock_repository
 import (
 	context "context"
 	entity "main-service/internal/entity"
-	http "net/http"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -83,7 +82,7 @@ func (mr *MockUsersRepoMockRecorder) FindByPhone(ctx, phone interface{}) *gomock
 }
 
 // SetAvatar mocks base method.
-func (m *MockUsersRepo) SetAvatar(ctx context.Context, userID string, avatarName string) error {
+func (m *MockUsersRepo) SetAvatar(ctx context.Context, userID, avatarName string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetAvatar", ctx, userID, avatarName)
 	ret0, _ := ret[0].(error)
@@ -108,56 +107,4 @@ func (m *MockUsersRepo) UpdateUserBalance(ctx context.Context, user *entity.User
 func (mr *MockUsersRepoMockRecorder) UpdateUserBalance(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserBalance", reflect.TypeOf((*MockUsersRepo)(nil).UpdateUserBalance), ctx, user)
-}
-
-// MockclientImageService is a mock of clientImageService interface.
-type MockclientImageService struct {
-	ctrl     *gomock.Controller
-	recorder *MockclientImageServiceMockRecorder
-}
-
-// MockclientImageServiceMockRecorder is the mock recorder for MockclientImageService.
-type MockclientImageServiceMockRecorder struct {
-	mock *MockclientImageService
-}
-
-// NewMockclientImageService creates a new mock instance.
-func NewMockclientImageService(ctrl *gomock.Controller) *MockclientImageService {
-	mock := &MockclientImageService{ctrl: ctrl}
-	mock.recorder = &MockclientImageServiceMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockclientImageService) EXPECT() *MockclientImageServiceMockRecorder {
-	return m.recorder
-}
-
-// GetURL mocks base method.
-func (m *MockclientImageService) GetURL() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetURL")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// GetURL indicates an expected call of GetURL.
-func (mr *MockclientImageServiceMockRecorder) GetURL() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetURL", reflect.TypeOf((*MockclientImageService)(nil).GetURL))
-}
-
-// Upload mocks base method.
-func (m *MockclientImageService) Upload(ctx context.Context, image []byte) (*http.Response, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Upload", ctx, image)
-	ret0, _ := ret[0].(*http.Response)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Upload indicates an expected call of Upload.
-func (mr *MockclientImageServiceMockRecorder) Upload(ctx, image interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockclientImageService)(nil).Upload), ctx, image)
 }

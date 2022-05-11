@@ -6,4 +6,6 @@ const (
 	ErrorMessageFailedConvertToClaims   = "Failed to convert to claims"
 	ErrorMessageNoFundsAvailable        = "User does not have enough funds to create a task"
 	ErrorMessageUserIsAlreadyRegistered = "Such a user is already registered"
+	ErrorMessageIncorrectFileName       = "incorrect file name from image-service - %s"
+	ErrorMessageInternalServerError     = "Internal server error"
 )

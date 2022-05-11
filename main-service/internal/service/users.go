@@ -12,6 +12,7 @@ import (
 	"main-service/pkg/hash"
 	"main-service/pkg/logger"
 	"net/http"
+	"regexp"
 )
 
 //go:generate mockgen -source=users.go -destination=../repository/mocks/user_mock.go -package=mock_repository
@@ -23,18 +24,18 @@ type UsersRepo interface {
 	SetAvatar(ctx context.Context, userID string, avatarName string) error
 }
 
-type clientImageService interface {
+type ClientImageService interface {
 	Upload(ctx context.Context, image []byte) (*http.Response, error)
 	GetURL() string
 }
 
 type UsersService struct {
-	client clientImageService
+	client ClientImageService
 	repo   UsersRepo
-	l      logger.Logger
+	l      *logger.Logger
 }
 
-func NewUserService(client clientImageService, repo UsersRepo, logger logger.Logger) *UsersService {
+func NewUserService(client ClientImageService, repo UsersRepo, logger *logger.Logger) *UsersService {
 	return &UsersService{
 		client: client,
 		repo:   repo,
@@ -85,7 +86,6 @@ func (s *UsersService) Login(ctx context.Context, user *entity.User) error {
 
 func (s *UsersService) SetAvatar(ctx context.Context, userID string, imageBytes []byte) (string, error) {
 	res, err := s.client.Upload(ctx, imageBytes)
-
 	if err != nil {
 		return "", err
 	}
@@ -95,8 +95,14 @@ func (s *UsersService) SetAvatar(ctx context.Context, userID string, imageBytes 
 		return "", err
 	}
 
-	if err = s.repo.SetAvatar(ctx, userID, string(body)); err != nil {
-		return "", err
+	fileName := string(body)
+	if matched, err := regexp.MatchString(".png|.jpg|.jpeg", fileName); err != nil || !matched {
+		return "", apperror.Internal.New(fmt.Sprintf(ErrorMessageIncorrectFileName, fileName))
+	}
+
+	if err = s.repo.SetAvatar(ctx, userID, fileName); err != nil {
+		s.l.Error(err)
+		return "", apperror.Internal.New(ErrorMessageInternalServerError)
 	}
 
 	return fmt.Sprintf("%s/%s", s.client.GetURL(), string(body)), nil
